@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dream_on.springboot.mapper.IMainPageService">
+	<!-- 캠페인 수 확인 -->
+	<select id = "project_count" resultType = "int">
+		select count(project_id) as 'project_count' from project
+	</select>
+	
+	<!-- 총 기부금, 기부 횟수 확인 -->
+	<select id = "total_donation">
+		select ifnull(sum(donation_amount), 0) as 'total_donation_amount', count(donation_id) as 'total_donation_count' from donation
+	</select>
+	
+	<!-- 월 별 기부금(최근 12개월) -->
+	<select id = "monthly_donation">
+		select year(donation_date) as 'donation_year', month(donation_date) as 'donation_month', ifnull(sum(donation_amount), 0) as 'amount'
+		from donation 
+		group by year(donation_date), month(donation_date) 
+		order by year(donation_date) desc, month(donation_date) desc 
+		limit 12
+	</select>
+	
+	<!-- 나의 보유 금액, 나의 총 후원 금액 확인 -->
+	<select id = "my_statistics">
+		select u.balance, ifnull(sum(d.donation_amount), 0) as 'my_total_donation_amount' from user u left join donation d on d.user_id = u.user_id where u.user_id = #{user_id}
+	</select>
+	
+	<!-- 이메일, 비밀번호 일치 여부 확인 -->
+	<select id = "is_valid_user" resultType = "boolean">
+		select if(count(user_id) = 1, true, false) from user where email = #{email} and password_hash = #{password_hash}
+	</select>
+	
+	<!-- 회원 가입 -->
+	<insert id = "create_user" parameterType = "com.dream_on.springboot.dto.UserDTO">
+		insert into user(email, password_hash, user_name, user_type) values(#{email}, #{password_hash}, #{user_name}, #{user_type})
+	</insert>
+	
+	<!-- 카테고리 별 프로젝트 목록 -->
+	<select id = "project_category_list" resultType = "com.dream_on.springboot.dto.ProjectDTO">
+		select * from project where category = #{category} and status = 'active' and end_date <![CDATA[>]]> now()
+	</select>
+	
+	<!-- 기부금 순 프로젝트 Top3 -->
+	<select id = "project_top3_by_donation" resultType = "com.dream_on.springboot.dto.ProjectDTO">
+		select p.* 
+		from project p
+		left join donation d on d.project_id = p.project_id
+		where p.status = 'active' and p.end_date <![CDATA[>]]> now() 
+		order by ifnull(sum(d.donation_amount), 0) desc
+		limit 3
+	</select>
+	
+	<!-- 기부금 순 프로젝트 Top10 -->
+	<select id = "project_top10_by_donation" resultType = "com.dream_on.springboot.dto.ProjectDTO">
+		select p.* 
+		from project p
+		left join donation d on d.project_id = p.project_id
+		where p.status = 'active' and p.end_date <![CDATA[>]]> now() 
+		order by ifnull(sum(d.donation_amount), 0) desc
+		limit 10
+	</select>
+	
+	<!-- 후원 소감 최근 10개 확인 -->
+	<select id = "get_recent_feedback" resultType = "com.dream_on.springboot.dto.DonationFeedbackDTO">
+		select * from donation_feedback_board where is_active = 'Y' order by updated_at desc limit 10
+	</select>
+	
+	<!-- 시작일 순 프로젝트 Top3 -->
+	<select id = "project_top3_by_start_date" resultType = "com.dream_on.springboot.dto.ProjectDTO">
+		select * from project where start_date <![CDATA[<]]> now() and now() <![CDATA[<]]> end_date and status = 'active' order by start_date desc limit 3
+	</select>
+</mapper>
