@@ -9,12 +9,12 @@
 	</select>
 	
 	<!-- 총 기부금, 기부 횟수 확인 -->
-	<select id = "total_donation">
+	<select id = "total_donation" resultType = "hashmap">
 		select ifnull(sum(donation_amount), 0) as 'total_donation_amount', count(donation_id) as 'total_donation_count' from donation
 	</select>
 	
 	<!-- 월 별 기부금(최근 12개월) -->
-	<select id = "monthly_donation">
+	<select id = "monthly_donation" resultType = "hashmap">
 		select year(donation_date) as 'donation_year', month(donation_date) as 'donation_month', ifnull(sum(donation_amount), 0) as 'amount'
 		from donation 
 		group by year(donation_date), month(donation_date) 
@@ -23,7 +23,7 @@
 	</select>
 	
 	<!-- 나의 보유 금액, 나의 총 후원 금액 확인 -->
-	<select id = "my_statistics">
+	<select id = "my_statistics" resultType = "hashmap">
 		select u.balance, ifnull(sum(d.donation_amount), 0) as 'my_total_donation_amount' from user u left join donation d on d.user_id = u.user_id where u.user_id = #{user_id}
 	</select>
 	
