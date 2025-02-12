@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.edu.springboot.mapper.UserMapper">
+
+    <!-- 회원 등록 -->
+    <insert id="insertUser" parameterType="com.edu.springboot.domain.UserEntity">
+        INSERT INTO user (
+            email, password_hash, username,
+            user_type, rank, accumulated_donation,
+            is_active, profile_image
+            -- created_at, updated_at 은 DB default
+        ) VALUES (
+            #{email}, #{passwordHash}, #{username},
+            #{userType}, #{rank}, #{accumulatedDonation},
+            #{isActive}, #{profileImage}
+        )
+    </insert>
+
+    <!-- 이메일로 사용자 조회 -->
+    <select id="findByEmail" parameterType="String" resultType="com.edu.springboot.domain.UserEntity">
+        SELECT * 
+        FROM user
+        WHERE email = #{email}
+    </select>
+
+    <!-- user_id 로 사용자 조회 -->
+    <select id="findByUserId" parameterType="Long" resultType="com.edu.springboot.domain.UserEntity">
+        SELECT *
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 회원정보 수정 -->
+    <update id="updateUser" parameterType="com.edu.springboot.domain.UserEntity">
+        UPDATE user
+           SET email = #{email},
+               username = #{username},
+               profile_image = #{profileImage},
+               updated_at = NOW()  <!-- DB 마다 다르게 사용 (MySQL은 NOW() / CURRENT_TIMESTAMP) -->
+         WHERE user_id = #{userId}
+    </update>
+
+    <!-- 회원 탈퇴(혹은 isActive = 'N') -->
+    <update id="deleteUser" parameterType="Long">
+        UPDATE user
+           SET is_active = 'N'
+         WHERE user_id = #{userId}
+    </update>
+
+    <!-- 비밀번호 찾기 관련 -->
+    <update id="updateResetToken">
+        UPDATE user
+           SET reset_token = #{token},
+               reset_token_expires = #{expires}
+         WHERE user_id = #{userId}
+    </update>
+
+    <select id="findByResetToken" parameterType="String" resultType="com.edu.springboot.domain.UserEntity">
+        SELECT *
+          FROM user
+         WHERE reset_token = #{token}
+           AND reset_token_expires > NOW()  <!-- 만료 여부 DB에서 필터링 -->
+    </select>
+
+    <update id="updatePasswordAndClearToken">
+        UPDATE user
+           SET password_hash   = #{newPasswordHash},
+               reset_token     = NULL,
+               reset_token_expires = NULL
+         WHERE user_id = #{userId}
+    </update>
+
+</mapper>

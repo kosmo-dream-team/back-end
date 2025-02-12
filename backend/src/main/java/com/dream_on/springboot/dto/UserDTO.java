@@ -7,6 +7,7 @@ public class UserDTO {
 	private int user_id;
 	private String email;
 	private String password_hash;
+	private String user_name;
 	private String user_type;
 	private int balance;
 	private String rank;
