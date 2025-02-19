@@ -18,7 +18,8 @@ import lombok.Data;
  */
 @Data
 public class LoginResponseDTO {
-    private String user_name;             // 사용자 이름
+	private long user_id;             // 사용자 id (키값)
+	private String user_name;             // 사용자 이름
     private String password_hash;         // (주의) 실제 비번 해시
     private String email;                 // 이메일
     private String phone;                 // 전화번호

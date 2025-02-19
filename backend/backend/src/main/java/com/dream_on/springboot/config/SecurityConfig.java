@@ -46,7 +46,8 @@ public class SecurityConfig {
                 // 로그인, 회원가입 등은 인증 없이 허용
                 .requestMatchers(
                     "/api/login",
-                    "/api/register",
+                    "/api/signup",
+                    "/api/update/userProfile",                    
                     // 필요 시 더 추가
                     "/css/**", 
                     "/js/**"
