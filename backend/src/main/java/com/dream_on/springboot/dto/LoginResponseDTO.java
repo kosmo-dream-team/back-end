@@ -5,9 +5,10 @@ import lombok.Data;
 /**
  * 로그인 성공 시 프론트엔드에 반환할 JSON 구조
  * {
+ *   "user_id": 회번번호,
  *   "user_name": "이름",
  *   "password_hash": "비번번호",
- *   "email": "이메일@naver",
+ *   "email": "이메일 주소",
  *   "phone": "01012345678",
  *   "gender": "남자",
  *   "user_type": "applicant",
@@ -18,7 +19,8 @@ import lombok.Data;
  */
 @Data
 public class LoginResponseDTO {
-    private String user_name;             // 사용자 이름
+	private long user_id;             // 사용자 id (키값)
+	private String user_name;             // 사용자 이름
     private String password_hash;         // (주의) 실제 비번 해시
     private String email;                 // 이메일
     private String phone;                 // 전화번호

@@ -3,6 +3,41 @@ package com.dream_on.springboot.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.dream_on.springboot.dto.ProjectSummaryDTO;
+import com.dream_on.springboot.service.MainService;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api")
+@RequiredArgsConstructor
+public class MainController {
+
+    private final MainService mainService;
+
+    /**
+     * 인기 TOP15 프로젝트 정보를 반환하는 API
+     * GET /api/topproject
+     */
+    @GetMapping("/topproject")
+    public ResponseEntity<List<ProjectSummaryDTO>> getTopProjects() {
+        List<ProjectSummaryDTO> projects = mainService.getTop15Projects();
+        return ResponseEntity.ok(projects);
+    }
+}
+
+
+/*
+ package com.dream_on.springboot.controller;
+ 
+
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,3 +89,4 @@ public class MainController {
         return ResponseEntity.ok(response);
     }
 }
+*/

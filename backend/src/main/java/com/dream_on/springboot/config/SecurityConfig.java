@@ -45,9 +45,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 로그인, 회원가입 등은 인증 없이 허용
                 .requestMatchers(
-                    "/api/login",
-                    "/api/register",
-                    // 필요 시 더 추가
+                	"/api/login",
+                    "/api/signup",
+                    "/api/update/userProfile",   
+                    "/api/topproject",                    
                     "/css/**", 
                     "/js/**"
                 ).permitAll()
