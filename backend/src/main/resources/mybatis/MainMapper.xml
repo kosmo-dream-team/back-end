@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dream_on.springboot.mapper.MainMapper">
+  
+  <!-- 인기 TOP15 프로젝트 조회 쿼리 -->
+  <select id="findTop15ProjectsByDonation" resultType="com.dream_on.springboot.dto.ProjectSummaryDTO">
+    SELECT 
+      p.project_id AS projectId,
+      p.title AS projectName,
+      c.category AS category,
+      DATE_FORMAT(p.end_date, '%Y-%m-%d') AS goalDate,
+      DATEDIFF(p.end_date, NOW()) AS daysLeft,
+      p.target_amount AS goalAmount,
+      CAST((COALESCE(SUM(d.donation_amount), 0) / p.target_amount) * 100 AS UNSIGNED) AS donationRate,
+      p.project_image AS projectImage,
+      p.like_count AS likeCount
+    FROM project p
+    LEFT JOIN donation d ON p.project_id = d.project_id
+    LEFT JOIN category c ON p.category_id = c.category_id
+    GROUP BY p.project_id
+    ORDER BY SUM(d.donation_amount) DESC
+    LIMIT 15
+  </select>
+
+</mapper>

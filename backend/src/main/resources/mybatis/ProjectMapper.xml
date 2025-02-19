@@ -9,40 +9,7 @@
 -->
  
 <mapper namespace="com.dream_on.springboot.mapper.ProjectMapper">
-	
-	<!-- 
-		1) 기부액 상위 10위 (전체 카테고리)		
-	  [목적]
-	    프로젝트 기부액 상위 10건의 요약 정보를 조회하여 프론트엔드에 전달합니다.
-	  [포함 정보]
-	    - 프로젝트명: p.title (alias: projectName)
-	    - 카테고리: p.category_id (alias: category) 
-	      * 참고: 실제 카테고리명을 출력하려면 category 테이블과 JOIN 필요
-	    - 목표일: p.end_date (문자열 포맷: 'YYYY-MM-DD', alias: goalDate)
-	    - 남은 일수: DATEDIFF(p.end_date, NOW()) (alias: daysLeft)
-	    - 목표금액: p.target_amount (alias: goalAmount)
-	    - 도달율: (기부 총액 / 목표금액) * 100, 정수형 변환 (alias: donationRate)
-	    - 프로젝트 이미지: p.project_image (alias: projectImage)
-	    - 좋아요 수: p.like_count (alias: likeCount)
-	-->
-	<select id="findTop10ProjectsByDonation" resultType="com.dream_on.springboot.dto.ProjectSummaryDTO">
-	    SELECT 
-	        p.title AS projectName,
-	        c.category AS category,
-	        DATE_FORMAT(p.end_date, '%Y-%m-%d') AS goalDate,
-	        DATEDIFF(p.end_date, NOW()) AS daysLeft,
-	        p.target_amount AS goalAmount,
-	        CAST((COALESCE(SUM(d.donation_amount), 0) / p.target_amount) * 100 AS UNSIGNED) AS donationRate,
-	        p.project_image AS projectImage,
-	        p.like_count AS likeCount
-	    FROM project p
-	    LEFT JOIN donation d ON p.project_id = d.project_id
-	    LEFT JOIN category c ON p.category_id = c.category_id
-	    GROUP BY p.project_id
-	    ORDER BY SUM(d.donation_amount) DESC
-	    LIMIT 10
-	</select>
-	
+
 	<!-- 
 	  2) 특정 카테고리에 대한 기부액 상위 10위
 	  p.category_id가 파라미터와 일치하는 레코드만 조회
@@ -211,5 +178,41 @@
             updated_at = NOW()
         WHERE project_id = #{projectId}
     </update>    
+
+	
+	<!-- 
+		1) 기부액 상위 10위 (전체 카테고리)		
+	  [목적]
+	    프로젝트 기부액 상위 10건의 요약 정보를 조회하여 프론트엔드에 전달합니다.
+	  [포함 정보]
+	    - 프로젝트명: p.title (alias: projectName)
+	    - 카테고리: p.category_id (alias: category) 
+	      * 참고: 실제 카테고리명을 출력하려면 category 테이블과 JOIN 필요
+	    - 목표일: p.end_date (문자열 포맷: 'YYYY-MM-DD', alias: goalDate)
+	    - 남은 일수: DATEDIFF(p.end_date, NOW()) (alias: daysLeft)
+	    - 목표금액: p.target_amount (alias: goalAmount)
+	    - 도달율: (기부 총액 / 목표금액) * 100, 정수형 변환 (alias: donationRate)
+	    - 프로젝트 이미지: p.project_image (alias: projectImage)
+	    - 좋아요 수: p.like_count (alias: likeCount)
+	-->
+	<select id="findTop10ProjectsByDonation" resultType="com.dream_on.springboot.dto.ProjectSummaryDTO">
+	    SELECT 
+	        p.title AS projectName,
+	        c.category AS category,
+	        DATE_FORMAT(p.end_date, '%Y-%m-%d') AS goalDate,
+	        DATEDIFF(p.end_date, NOW()) AS daysLeft,
+	        p.target_amount AS goalAmount,
+	        CAST((COALESCE(SUM(d.donation_amount), 0) / p.target_amount) * 100 AS UNSIGNED) AS donationRate,
+	        p.project_image AS projectImage,
+	        p.like_count AS likeCount
+	    FROM project p
+	    LEFT JOIN donation d ON p.project_id = d.project_id
+	    LEFT JOIN category c ON p.category_id = c.category_id
+	    GROUP BY p.project_id
+	    ORDER BY SUM(d.donation_amount) DESC
+	    LIMIT 10
+	</select>
+
+	
 
 </mapper>

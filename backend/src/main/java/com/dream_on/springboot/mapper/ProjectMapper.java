@@ -13,29 +13,7 @@ import com.dream_on.springboot.dto.RecentProjectDTO;
 @Mapper
 public interface ProjectMapper {
 
-    /*
-	* 전체 카테고리에 대한 기부액 상위 10위 프로젝트
-	프로젝트명, 카테고리, 목표일, 마감일까지 남은 일수, 목표금액, 도달율
 
-    @Select("""
-        SELECT 
-            p.title        AS projectName,
-            p.category            AS category,
-            DATE_FORMAT(p.end_date, '%Y-%m-%d') AS goalDate,
-            DATEDIFF(p.end_date, NOW()) AS daysLeft,
-            p.target_amount       AS goalAmount,
-            -- NULL 방지로 SUM(d.donation_amount)와 p.target_amount를 0 처리
-            CAST( ( COALESCE(SUM(d.donation_amount), 0) / p.target_amount ) * 100 AS UNSIGNED ) AS donationRate
-            p.project_image                        AS projectImage
-        FROM project p
-        LEFT JOIN donation d 
-               ON p.project_id = d.project_id
-        GROUP BY p.project_id
-        ORDER BY SUM(d.donation_amount) DESC
-        LIMIT 10
-        """)
-	*/
-	List<ProjectSummaryDTO> findTop10ProjectsByDonation();
 
     /**
      * 특정 카테고리에 대한 기부액 상위 10위 프로젝트
@@ -73,6 +51,30 @@ public interface ProjectMapper {
 
     // 기존의 프로젝트 정보를 수정
     int updateProject(ProjectEntity project);
+
+    /*
+	* 전체 카테고리에 대한 기부액 상위 10위 프로젝트
+	프로젝트명, 카테고리, 목표일, 마감일까지 남은 일수, 목표금액, 도달율
+
+    @Select("""
+        SELECT 
+            p.title        AS projectName,
+            p.category            AS category,
+            DATE_FORMAT(p.end_date, '%Y-%m-%d') AS goalDate,
+            DATEDIFF(p.end_date, NOW()) AS daysLeft,
+            p.target_amount       AS goalAmount,
+            -- NULL 방지로 SUM(d.donation_amount)와 p.target_amount를 0 처리
+            CAST( ( COALESCE(SUM(d.donation_amount), 0) / p.target_amount ) * 100 AS UNSIGNED ) AS donationRate
+            p.project_image                        AS projectImage
+        FROM project p
+        LEFT JOIN donation d 
+               ON p.project_id = d.project_id
+        GROUP BY p.project_id
+        ORDER BY SUM(d.donation_amount) DESC
+        LIMIT 10
+        """)
+	*/
+	List<ProjectSummaryDTO> findTop10ProjectsByDonation();
     
     
 }

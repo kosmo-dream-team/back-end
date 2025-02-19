@@ -29,19 +29,7 @@ public class ProjectService {
 
     private final ProjectMapper projectMapper;
 
-    /**
-     * (전체 카테고리) 기부액 상위 10개 프로젝트 조회
-     *
-     * <p>
-     * 카테고리에 상관없이, 기부액이 가장 많은 상위 10개 프로젝트의 요약 정보를 조회합니다.
-     * (개별 카테고리별 상위 10개 조회는 CategoryService/Controller에서 처리)
-     * </p>
-     *
-     * @return ProjectSummaryDTO 리스트 (프로젝트명, 카테고리ID, 목표일, 남은 일수, 목표금액, 도달율, 이미지, 좋아요 수 등)
-     */
-    public List<ProjectSummaryDTO> getTop10Projects() {
-        return projectMapper.findTop10ProjectsByDonation();
-    }
+
 
     /**
      * 최근 신설된 프로젝트 3개 조회
@@ -138,4 +126,20 @@ public class ProjectService {
     public void updateProject(ProjectEntity project) {
         projectMapper.updateProject(project);
     }    
+
+    /**
+     * (전체 카테고리) 기부액 상위 10개 프로젝트 조회
+     *
+     * <p>
+     * 카테고리에 상관없이, 기부액이 가장 많은 상위 10개 프로젝트의 요약 정보를 조회합니다.
+     * (개별 카테고리별 상위 10개 조회는 CategoryService/Controller에서 처리)
+     * </p>
+     *
+     * @return ProjectSummaryDTO 리스트 (프로젝트명, 카테고리ID, 목표일, 남은 일수, 목표금액, 도달율, 이미지, 좋아요 수 등)
+     */
+    public List<ProjectSummaryDTO> getTop10Projects() {
+        return projectMapper.findTop10ProjectsByDonation();
+    }
+
+
 }
