@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dream_on.springboot.mapper.UserMapper">
+
+    <!-- 회원 등록 -->
+    <insert id="insertUser" parameterType="com.dream_on.springboot.domain.UserEntity">
+        INSERT INTO user (
+            email,
+            password_hash,
+            user_name,
+            gender,
+            phone,
+            user_type,
+            balance,
+            is_active,
+            profile_image,
+            reset_token,
+            reset_token_expires_at,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{email},
+            #{passwordHash},
+            #{userName},
+            #{gender},
+            #{phone},
+            #{userType},
+            #{balance},
+            #{isActive},
+            #{profileImage},
+            #{resetToken},
+            #{resetTokenExpiresAt},
+            NOW(),
+            NOW()
+        )
+    </insert>
+
+    <!-- 이메일로 사용자 조회 -->
+    <select id="findByEmail" parameterType="String" resultType="com.dream_on.springboot.domain.UserEntity">
+        SELECT 
+            user_id         AS userId,
+            email           AS email,
+            password_hash   AS passwordHash,
+            user_name       AS userName,
+            gender          AS gender,
+            phone           AS phone,
+            user_type       AS userType,
+            balance         AS balance,
+            created_at      AS createdAt,
+            updated_at      AS updatedAt,
+            is_active       AS isActive,
+            profile_image   AS profileImage,
+            reset_token     AS resetToken,
+            reset_token_expires_at AS resetTokenExpiresAt
+        FROM user
+        WHERE email = #{email}
+    </select>
+
+    <!-- user_id 로 사용자 조회 -->
+    <select id="findByUserId" parameterType="int" resultType="com.dream_on.springboot.domain.UserEntity">
+        SELECT 
+            user_id         AS userId,
+            email           AS email,
+            password_hash   AS passwordHash,
+            user_name       AS userName,
+            gender          AS gender,
+            phone           AS phone,
+            user_type       AS userType,
+            balance         AS balance,
+            created_at      AS createdAt,
+            updated_at      AS updatedAt,
+            is_active       AS isActive,
+            profile_image   AS profileImage,
+            reset_token     AS resetToken,
+            reset_token_expires_at AS resetTokenExpiresAt
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 회원정보 수정 -->
+    <update id="updateUser" parameterType="com.dream_on.springboot.domain.UserEntity">
+        UPDATE user
+           SET email = #{email},
+               user_name = #{userName},
+               gender = #{gender},
+               phone = #{phone},
+               user_type = #{userType},
+               balance = #{balance},
+               profile_image = #{profileImage},
+               reset_token = #{resetToken},
+               reset_token_expires_at = #{resetTokenExpiresAt},
+               updated_at = NOW()
+         <if test="passwordHash != null and passwordHash != ''">
+             , password_hash = #{passwordHash}
+         </if>
+         WHERE user_id = #{userId}
+    </update>
+
+    <!-- 회원 탈퇴(혹은 isActive = 'N') -->
+    <update id="deleteUser" parameterType="int">
+        UPDATE user
+           SET is_active = 'N',
+               updated_at = NOW()
+         WHERE user_id = #{userId}
+    </update>
+
+    <!-- 비밀번호 찾기 관련 -->
+    <update id="updateResetToken">
+        UPDATE user
+           SET reset_token = #{token},
+               reset_token_expires_at = #{expires},
+               updated_at = NOW()
+         WHERE user_id = #{userId}
+    </update>
+
+    <select id="findByResetToken" parameterType="String" resultType="com.dream_on.springboot.domain.UserEntity">
+        SELECT 
+            user_id         AS userId,
+            email           AS email,
+            password_hash   AS passwordHash,
+            user_name       AS userName,
+            gender          AS gender,
+            phone           AS phone,
+            user_type       AS userType,
+            balance         AS balance,
+            created_at      AS createdAt,
+            updated_at      AS updatedAt,
+            is_active       AS isActive,
+            profile_image   AS profileImage,
+            reset_token     AS resetToken,
+            reset_token_expires_at AS resetTokenExpiresAt
+        FROM user
+        WHERE reset_token = #{token}
+          AND reset_token_expires_at > NOW()
+    </select>
+
+    <update id="updatePasswordAndClearToken">
+        UPDATE user
+           SET password_hash = #{newPasswordHash},
+               reset_token = NULL,
+               reset_token_expires_at = NULL,
+               updated_at = NOW()
+         WHERE user_id = #{userId}
+    </update>
+
+    <!-- 
+         마이페이지 값 전달 
+         사용자 기본 정보와 총 기부 금액을 조회합니다.
+         총 기부금액은 donation 테이블에서 user_id별 SUM(donation_amount)를 계산합니다.
+    -->
+    <select id="findMyPageInfo" resultType="com.dream_on.springboot.dto.MyPageResponseDTO">
+        SELECT 
+            u.user_id         AS userId,
+            u.user_name       AS name,
+            u.email           AS email,
+            u.profile_image   AS profileImage,
+            COALESCE(
+              (SELECT SUM(d.donation_amount) FROM donation d WHERE d.user_id = u.user_id),
+              0
+            ) AS totalDonation
+        FROM user u
+        WHERE u.user_id = #{userId}
+          AND u.is_active = 'Y'
+    </select>
+
+</mapper>

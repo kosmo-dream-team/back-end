@@ -1,0 +1,73 @@
+plugins {
+	id 'java'
+	id 'war'
+	id 'org.springframework.boot' version '3.4.2'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.edu'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+eclipse.wtp.facet {
+    facet name: 'jst.web', version: '5.0'
+}
+
+dependencies {
+	// Spring Boot 기본 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	
+	// MySQL JDBC
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	
+	// 톰캣(내장 톰캣 대신 제공된 톰캣 사용)
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	
+	// 테스트 관련 의존성
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	
+	// JSP 관련 의존성
+	implementation 'jakarta.servlet:jakarta.servlet-api'
+	implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
+	implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
+	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	
+	// ================================
+	// PortOne (아임포트) 결제 관련 의존성
+	// ================================
+	// JSON 데이터 파싱용 Gson 라이브러리
+	implementation 'com.google.code.gson:gson:2.10.1'
+	// HTTP 통신용 Apache HttpClient (Client5)
+	//implementation 'org.apache.httpcomponents.client5:httpclient5:5.1.3'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
