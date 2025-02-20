@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 
+	이 파일은 application.properties 파일의 mybatis mapper 경로를 직접 수정할 경우
+	에러가 발생해 임시로 /mybatis 경로에 생성한 파일입니다. 
+-->
+ 
+<mapper namespace="com.dream_on.springboot.mapper.ProjectMapper">
+
+	<!-- 
+	  2) 특정 카테고리에 대한 기부액 상위 10위
+	  p.category_id가 파라미터와 일치하는 레코드만 조회
+	-->
+	<select id="findTop10ProjectsByDonationInCategory" resultType="com.dream_on.springboot.dto.ProjectSummaryDTO">
+	    SELECT 
+	        p.title AS projectName,
+	        p.category_id AS category,
+	        DATE_FORMAT(p.end_date, '%Y-%m-%d') AS goalDate,
+	        DATEDIFF(p.end_date, NOW()) AS daysLeft,
+	        p.target_amount AS goalAmount,
+	        CAST((COALESCE(SUM(d.donation_amount), 0)/p.target_amount)*100 AS UNSIGNED) AS donationRate,
+	        p.project_image AS projectImage,
+	        p.like_count AS likeCount
+	    FROM project p
+	    LEFT JOIN donation d ON p.project_id = d.project_id
+	    WHERE p.category_id = #{categoryId}
+	    GROUP BY p.project_id
+	    ORDER BY SUM(d.donation_amount) DESC
+	    LIMIT 10
+	</select>
+	
+	<!-- 
+	  [목적]
+	    특정 프로젝트의 상세 정보를 조회하여 프론트엔드에 전달합니다.
+	  [포함 정보]
+	    - 프로젝트 식별자: p.project_id (alias: projectId)
+	    - 프로젝트명: p.title (alias: title)
+	    - 카테고리: p.category_id (alias: category)
+	    - 시작일: p.start_date (포맷: 'YYYY-MM-DD', alias: startDate)
+	    - 마감일: p.end_date (포맷: 'YYYY-MM-DD', alias: endDate)
+	    - 상세 설명: p.description (alias: description)
+	    - 남은 일수: DATEDIFF(p.end_date, NOW()) (alias: daysLeft)
+	    - 목표금액: p.target_amount (alias: targetAmount)
+	    - 도달율: (SUM(d.donation_amount)/p.target_amount)*100 (alias: donationRate)
+	    - 기부자 수: COUNT(DISTINCT d.user_id) (alias: donorCount)
+	    - 누적 기부액: COALESCE(SUM(d.donation_amount), 0) (alias: accumulatedDonation)
+	    - 프로젝트 이미지: p.project_image (alias: projectImage)
+	    - 좋아요 수: p.like_count (alias: likeCount)
+	-->
+	<select id="findProjectDetail" resultType="com.dream_on.springboot.dto.ProjectDetailDTO">
+	    SELECT 
+	        p.project_id AS projectId,
+	        p.title AS title,
+	        c.category AS category,
+	        DATE_FORMAT(p.start_date, '%Y-%m-%d') AS startDate,
+	        DATE_FORMAT(p.end_date, '%Y-%m-%d') AS endDate,
+	        p.description AS description,
+	        DATEDIFF(p.end_date, NOW()) AS daysLeft,
+	        p.target_amount AS targetAmount,
+	        CAST((COALESCE(SUM(d.donation_amount), 0) / p.target_amount) * 100 AS UNSIGNED) AS donationRate,
+	        COUNT(DISTINCT d.user_id) AS donorCount,
+	        COALESCE(SUM(d.donation_amount), 0) AS accumulatedDonation,
+	        p.project_image AS projectImage,
+	        p.like_count AS likeCount
+	    FROM project p
+	    LEFT JOIN donation d ON p.project_id = d.project_id
+	    LEFT JOIN category c ON p.category_id = c.category_id
+	    WHERE p.project_id = #{projectId}
+	    GROUP BY p.project_id
+	</select>
+
+
+
+    <!-- 해당 프로젝트 기부자 목록 (user.username) -->
+    <select id="findDonorsByProjectId" resultType="String">
+        SELECT u.user_name
+          FROM donation dn
+          JOIN user u ON dn.user_id = u.user_id
+         WHERE dn.project_id = #{projectId}
+         GROUP BY u.user_name
+         ORDER BY MAX(dn.donation_date) DESC
+    </select>
+
+    <!-- 기부 INSERT -->
+    <insert id="insertDonation">
+        INSERT INTO donation (
+          user_id, project_id, donation_amount, donation_date, payment_method, status
+        ) VALUES (
+          #{userId}, #{projectId}, #{amount}, NOW(), #{paymentMethod}, 'success'
+        )
+    </insert>
+	
+	
+	<!-- 
+	  [목적]
+	    최근 등록된 프로젝트 3개의 정보를 조회하여 프론트엔드에 전달합니다.
+	  [포함 정보]
+	    - 프로젝트 식별자: p.project_id (alias: projectId)
+	    - 프로젝트명: p.title (alias: title)
+	    - 카테고리: p.category_id (alias: category)
+	    - 생성자 ID: p.user_id (alias: userId)
+	    - 목표금액: p.target_amount (alias: targetAmount)
+	    - 상세 설명: p.description (alias: description)
+	    - 기부 합계: COALESCE(SUM(d.donation_amount), 0) (alias: donationSum)
+	    - 좋아요 수: p.like_count (alias: likeCount)
+	-->
+	<select id="findLatest3Projects" resultType="com.dream_on.springboot.dto.RecentProjectDTO">
+	    SELECT 
+	        p.project_id AS projectId,
+	        p.title AS title,
+	        p.category_id AS category,
+	        p.user_id AS userId,
+	        p.target_amount AS targetAmount,
+	        p.description AS description,
+	        COALESCE(SUM(d.donation_amount), 0) AS donationSum,
+	        p.like_count AS likeCount
+	    FROM project p
+	    LEFT JOIN donation d ON p.project_id = d.project_id
+	    GROUP BY p.project_id
+	    ORDER BY p.project_id DESC
+	    LIMIT 3
+	</select>
+
+
+
+    <!-- 새로운 프로젝트 레코드를 DB에 추가 -->
+    <insert id="insertProject" useGeneratedKeys="true" keyProperty="projectId">
+        INSERT INTO project (
+            category_id,
+            title,
+            user_id,
+            target_amount,
+            start_date,
+            end_date,
+            status,
+            description,
+            project_image,
+            share_count,
+            like_count,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{categoryId},
+            #{title},
+            #{userId},
+            #{targetAmount},
+            #{startDate},
+            #{endDate},
+            #{status},
+            #{description},
+            #{projectImage},
+            #{shareCount},
+            #{likeCount},
+            NOW(),
+            NOW()
+        )
+    </insert>
+
+
+	<!-- 기존의 프로젝트 정보를 수정 -->
+    <update id="updateProject">
+        UPDATE project
+        SET
+            category_id = #{categoryId},
+            title = #{title},
+            user_id = #{userId},
+            target_amount = #{targetAmount},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            status = #{status},
+            description = #{description},
+            project_image = #{projectImage},
+            share_count = #{shareCount},
+            like_count = #{likeCount},
+            updated_at = NOW()
+        WHERE project_id = #{projectId}
+    </update>    
+
+	
+	<!-- 
+		1) 기부액 상위 10위 (전체 카테고리)		
+	  [목적]
+	    프로젝트 기부액 상위 10건의 요약 정보를 조회하여 프론트엔드에 전달합니다.
+	  [포함 정보]
+	    - 프로젝트명: p.title (alias: projectName)
+	    - 카테고리: p.category_id (alias: category) 
+	      * 참고: 실제 카테고리명을 출력하려면 category 테이블과 JOIN 필요
+	    - 목표일: p.end_date (문자열 포맷: 'YYYY-MM-DD', alias: goalDate)
+	    - 남은 일수: DATEDIFF(p.end_date, NOW()) (alias: daysLeft)
+	    - 목표금액: p.target_amount (alias: goalAmount)
+	    - 도달율: (기부 총액 / 목표금액) * 100, 정수형 변환 (alias: donationRate)
+	    - 프로젝트 이미지: p.project_image (alias: projectImage)
+	    - 좋아요 수: p.like_count (alias: likeCount)
+	-->
+	<select id="findTop10ProjectsByDonation" resultType="com.dream_on.springboot.dto.ProjectSummaryDTO">
+	    SELECT 
+	        p.title AS projectName,
+	        c.category AS category,
+	        DATE_FORMAT(p.end_date, '%Y-%m-%d') AS goalDate,
+	        DATEDIFF(p.end_date, NOW()) AS daysLeft,
+	        p.target_amount AS goalAmount,
+	        CAST((COALESCE(SUM(d.donation_amount), 0) / p.target_amount) * 100 AS UNSIGNED) AS donationRate,
+	        p.project_image AS projectImage,
+	        p.like_count AS likeCount
+	    FROM project p
+	    LEFT JOIN donation d ON p.project_id = d.project_id
+	    LEFT JOIN category c ON p.category_id = c.category_id
+	    GROUP BY p.project_id
+	    ORDER BY SUM(d.donation_amount) DESC
+	    LIMIT 10
+	</select>
+
+	
+
+</mapper>
