@@ -49,6 +49,8 @@ public class SecurityConfig {
                     "/api/signup",
                     "/api/update/userProfile",
                     "/api/topproject",
+                    "/project/**", 
+                    "/comment/**",
                     "/css/**",
                     "/js/**",
                     "/oauth2/**",           // OAuth2 시작 엔드포인트 허용

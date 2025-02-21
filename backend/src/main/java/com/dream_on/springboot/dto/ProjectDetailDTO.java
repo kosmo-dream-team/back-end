@@ -3,6 +3,7 @@ package com.dream_on.springboot.dto;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * ProjectDetailDTO
@@ -19,21 +20,22 @@ import java.util.List;
  */
 @Data
 public class ProjectDetailDTO {
-    private int projectId;           // 프로젝트 식별자
-    private String title;            // 프로젝트명
-    private String category;         // 카테고리 (문자열)
-    private String startDate;        // 시작일 (문자열 or Date)
-    private String endDate;          // 마감일 (문자열 or Date)
-    private String description;      // 상세 설명
-
-    private int daysLeft;            // 남은 일수 (예: D-16)
-    private int targetAmount;        // 목표금액
-    private int donationRate;        // 도달율 (예: 33%)
-
-    private List<String> donors;     // 기부자 목록(간단히 닉네임/이름만 전달)
-    private int donorCount;          // 기부자 수 (중복 제거된 count)
-    private int accumulatedDonation; // 누적 기부액 (donation_amount 합계)
-    private String projectImage;     // 프로젝트 이미지 경로/URL
-
-    private int likeCount;           // 좋아요(‘좋아요’ 수) 
+    private int projectId;           			// 프로젝트 식별자
+    private String projectImage;     			// 프로젝트 이미지 경로/URL
+    private String applicant;		 			// 수혜자 이름
+    private String applicantImage;	 			// 수혜자 프로필 이미지
+    private String title;            			// 프로젝트명
+    private String description;      			// 상세 설명
+    private List<CategoryDTO> categoryList;	// 카테고리 리스트
+    private String startDate;        			// 시작일 (문자열 or Date)
+    private String endDate;          			// 마감일 (문자열 or Date)
+    private int daysLeft;            			// 남은 일수 (예: D-16)
+    private int accumulatedDonation; 			// 누적 기부액 (donation_amount 합계)
+    private int targetAmount;        			// 목표금액
+    private int donationRate;        			// 도달율 (예: 33%)
+    private int likeCount;           			// 좋아요(‘좋아요’ 수)
+    private int shareCount;						// 공유(프로젝트 공유 횟수)
+    private int donorCount;          			// 기부자 수 (중복 제거된 count)
+    private List<ProjectDonorDTO> donorList;     	// 기부자 목록
+    private List<ProjectCommentDTO> commentList;	// 댓글 목록
 }

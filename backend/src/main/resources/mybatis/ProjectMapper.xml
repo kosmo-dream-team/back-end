@@ -53,30 +53,38 @@
 	<select id="findProjectDetail" resultType="com.dream_on.springboot.dto.ProjectDetailDTO">
 	    SELECT 
 	        p.project_id AS projectId,
+	        p.project_image AS projectImage,
+	        u.user_name AS applicant,
+	        u.profile_image AS applicantImage,
 	        p.title AS title,
-	        c.category AS category,
+	        p.description AS description,
 	        DATE_FORMAT(p.start_date, '%Y-%m-%d') AS startDate,
 	        DATE_FORMAT(p.end_date, '%Y-%m-%d') AS endDate,
-	        p.description AS description,
 	        DATEDIFF(p.end_date, NOW()) AS daysLeft,
+	        COALESCE(SUM(d.donation_amount), 0) AS accumulatedDonation,
 	        p.target_amount AS targetAmount,
 	        CAST((COALESCE(SUM(d.donation_amount), 0) / p.target_amount) * 100 AS UNSIGNED) AS donationRate,
 	        COUNT(DISTINCT d.user_id) AS donorCount,
-	        COALESCE(SUM(d.donation_amount), 0) AS accumulatedDonation,
-	        p.project_image AS projectImage,
-	        p.like_count AS likeCount
+	        p.like_count AS likeCount,
+	        p.share_count AS shareCount
 	    FROM project p
+	    LEFT JOIN user u ON p.user_id = u.user_id
 	    LEFT JOIN donation d ON p.project_id = d.project_id
-	    LEFT JOIN category c ON p.category_id = c.category_id
 	    WHERE p.project_id = #{projectId}
-	    GROUP BY p.project_id
+	    GROUP BY p.project_id;
 	</select>
 
-
+	<!-- 해당 프로젝트 카테고리 목록 -->
+	<select id = "findCategorysByProjectId" resultType="com.dream_on.springboot.dto.CategoryDTO">
+		select c.category as categoryName
+		from project p
+		left join category c on p.category_id = c.category_id
+		where project_id = #{projectId}
+	</select>
 
     <!-- 해당 프로젝트 기부자 목록 (user.username) -->
-    <select id="findDonorsByProjectId" resultType="String">
-        SELECT u.user_name
+    <select id="findDonorsByProjectId" resultType="com.dream_on.springboot.dto.ProjectDonorDTO">
+        SELECT u.user_name AS donorName, u.profile_image AS profileImage
           FROM donation dn
           JOIN user u ON dn.user_id = u.user_id
          WHERE dn.project_id = #{projectId}
@@ -84,12 +92,22 @@
          ORDER BY MAX(dn.donation_date) DESC
     </select>
 
+	<!-- 해당 프로젝트 댓글 목록 -->
+	<select id = "findCommentsByProjectId" resultType="com.dream_on.springboot.dto.ProjectCommentDTO">
+		select u.profile_image as profileImage, u.user_name as userName, 
+		c.comment, c.like as likeCount, c.post_date as postDate 
+		from comment c
+		left join user u on c.user_id = u.user_id
+		where c.project_id = #{projectId}
+		order by c.post_date desc;
+	</select>
+
     <!-- 기부 INSERT -->
     <insert id="insertDonation">
         INSERT INTO donation (
-          user_id, project_id, donation_amount, donation_date, payment_method, status
+          user_id, project_id, donation_amount, donation_date, payment_method
         ) VALUES (
-          #{userId}, #{projectId}, #{amount}, NOW(), #{paymentMethod}, 'success'
+          #{userId}, #{projectId}, #{amount}, NOW(), #{paymentMethod}
         )
     </insert>
 	
