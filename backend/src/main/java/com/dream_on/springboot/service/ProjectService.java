@@ -5,7 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.dream_on.springboot.domain.ProjectEntity;
+import com.dream_on.springboot.dto.CategoryDTO;
+import com.dream_on.springboot.dto.ProjectCommentDTO;
 import com.dream_on.springboot.dto.ProjectDetailDTO;
+import com.dream_on.springboot.dto.ProjectDonorDTO;
 import com.dream_on.springboot.dto.ProjectSummaryDTO;
 import com.dream_on.springboot.dto.RecentProjectDTO;
 import com.dream_on.springboot.mapper.ProjectMapper;
@@ -70,9 +73,15 @@ public class ProjectService {
         if(detail == null) {
             throw new RuntimeException("프로젝트가 존재하지 않습니다. id=" + projectId);
         }
-        // 기부자 목록 조회 (기부자 닉네임/이름)
-        List<String> donors = projectMapper.findDonorsByProjectId(projectId);
-        detail.setDonors(donors);
+        
+        List<CategoryDTO> categoryList = projectMapper.findCategorysByProjectId(projectId); // 프로젝트 카테고리 조회
+        List<ProjectDonorDTO> donorList = projectMapper.findDonorsByProjectId(projectId); // 기부자 목록 조회
+        List<ProjectCommentDTO> commentList = projectMapper.findCommentsByProjectId(projectId); // 프로젝트 댓글 조회
+        
+        detail.setCategoryList(categoryList);
+        detail.setDonorList(donorList);
+        detail.setCommentList(commentList);
+        
         return detail;
     }
 
@@ -94,7 +103,7 @@ public class ProjectService {
      * @param paymentMethod 결제 방식
      * @throws RuntimeException 기부 내역 저장에 실패하면 예외 발생
      */
-    public void donate(Long userId, Long projectId, int amount, String paymentMethod) {
+    public void donate(int userId, Long projectId, int amount, String paymentMethod) {
         int rowCount = projectMapper.insertDonation(userId, projectId, amount, paymentMethod);
         if(rowCount <= 0) {
             throw new RuntimeException("기부 내역 저장 실패");

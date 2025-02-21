@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.dream_on.springboot.domain.ProjectEntity;
 import com.dream_on.springboot.dto.ProjectDetailDTO;
+import com.dream_on.springboot.dto.ProjectDonationDTO;
 import com.dream_on.springboot.dto.ProjectSummaryDTO;
 import com.dream_on.springboot.dto.RecentProjectDTO;
 import com.dream_on.springboot.service.ProjectService;
@@ -104,10 +105,9 @@ public class ProjectController {
      */
     @PostMapping("/{id}/donate")
     public ResponseEntity<String> donate(@PathVariable("id") Long projectId,
-                                         @RequestParam Long userId,
-                                         @RequestParam int amount,
-                                         @RequestParam String paymentMethod) {
-        projectService.donate(userId, projectId, amount, paymentMethod);
+                                         @RequestBody ProjectDonationDTO projectDonationDTO) {
+    	System.out.println(projectDonationDTO);
+        projectService.donate(projectDonationDTO.getUserId(), projectId, projectDonationDTO.getAmount(), projectDonationDTO.getPaymentMethod());
         return ResponseEntity.ok("기부 성공!");
     }
 
