@@ -1,10 +1,13 @@
 package com.dream_on.springboot.mapper;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
+import com.dream_on.springboot.domain.CategoryEntity;
 import com.dream_on.springboot.dto.DonationFeedbackBoardDTO;
 import com.dream_on.springboot.dto.ProjectDTO;
 import com.dream_on.springboot.dto.UserDTO;
@@ -22,4 +25,6 @@ public interface IMainPageService {
 	public ArrayList<ProjectDTO> project_top10_by_donation(); // 기부금 순 프로젝트 Top10
 	public ArrayList<DonationFeedbackBoardDTO> get_recent_feedback(); // 후원 소감 최근 10개 확인
 	public ArrayList<ProjectDTO> project_top3_by_start_date(); // 시작일 순 프로젝트 Top3
+	 @Select("SELECT category_id, category FROM category")
+	    List<CategoryEntity> findAll(); // 카테고리 목록 조회
 }

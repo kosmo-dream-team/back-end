@@ -1,20 +1,24 @@
 package com.dream_on.springboot.controller;
 
+import java.io.IOException;
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.dream_on.springboot.domain.ProjectEntity;
 import com.dream_on.springboot.dto.ProjectDetailDTO;
-import com.dream_on.springboot.dto.ProjectDonationDTO;
 import com.dream_on.springboot.dto.ProjectSummaryDTO;
 import com.dream_on.springboot.dto.RecentProjectDTO;
 import com.dream_on.springboot.service.ProjectService;
 
 import lombok.RequiredArgsConstructor;
 
+//아아아
 /**
  * ProjectController
  *
@@ -82,7 +86,10 @@ public class ProjectController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ProjectDetailDTO> getProjectDetail(@PathVariable("id") Long projectId) {
-    	ProjectDetailDTO detail = projectService.getProjectDetail(projectId);
+        ProjectDetailDTO detail = projectService.getProjectDetail(projectId);
+        if(detail == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(detail);
     }
 
@@ -105,33 +112,13 @@ public class ProjectController {
      */
     @PostMapping("/{id}/donate")
     public ResponseEntity<String> donate(@PathVariable("id") Long projectId,
-                                         @RequestBody ProjectDonationDTO projectDonationDTO) {
-    	System.out.println(projectDonationDTO);
-        projectService.donate(projectDonationDTO.getUserId(), projectId, projectDonationDTO.getAmount(), projectDonationDTO.getPaymentMethod());
+                                         @RequestParam Long userId,
+                                         @RequestParam int amount,
+                                         @RequestParam String paymentMethod) {
+        projectService.donate(userId, projectId, amount, paymentMethod);
         return ResponseEntity.ok("기부 성공!");
     }
 
-    // 좋아요 수 업데이트
-    @GetMapping("/{id}/like")
-    public ResponseEntity<String> like(@PathVariable("id") Long projectId) {
-    	projectService.like(projectId);
-    	return ResponseEntity.ok("좋아요 성공!");
-    }
-    
-    // 공유 횟수 업데이트
-    @GetMapping("/{id}/share")
-    public ResponseEntity<String> share(@PathVariable("id") Long projectId) {
-    	projectService.share(projectId);
-    	return ResponseEntity.ok("공유 성공!");
-    }
-    
-    // 댓글 좋아요 수 업데이트
-    @GetMapping("/likeComment/{commentId}")
-    public ResponseEntity<String> likeComment(@PathVariable("commentId") Long commentId) {
-    	projectService.likeComment(commentId);
-    	return ResponseEntity.ok("댓글 좋아요 성공!");
-    }
-    
     /**
      * 프로젝트 생성
      *
@@ -142,11 +129,19 @@ public class ProjectController {
      * @param project 생성할 프로젝트 정보를 담은 ProjectEntity
      * @return 성공 메시지 ("프로젝트가 생성되었습니다.")
      */
-    @PostMapping("/create")
-    public ResponseEntity<String> createProject(@RequestBody ProjectEntity project) {
-        projectService.createProject(project);
-        return ResponseEntity.ok("프로젝트가 생성되었습니다.");
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> createProject(@ModelAttribute ProjectEntity project) {
+        try {
+            projectService.createProject(project);
+            return ResponseEntity.ok("프로젝트가 생성되었습니다.");
+        } catch (IOException e) {
+            // 로깅 등 추가 처리 가능
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("프로젝트 생성 중 오류가 발생했습니다.");
+        }
     }
+
+
 
     /**
      * 프로젝트 수정
@@ -167,5 +162,8 @@ public class ProjectController {
         projectService.updateProject(project);
         return ResponseEntity.ok("프로젝트가 수정되었습니다.");
     }
+    
+    
+
 
 }

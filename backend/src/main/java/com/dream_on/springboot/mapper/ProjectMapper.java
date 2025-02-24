@@ -2,14 +2,12 @@ package com.dream_on.springboot.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.dream_on.springboot.domain.ProjectEntity;
-import com.dream_on.springboot.dto.CategoryDTO;
-import com.dream_on.springboot.dto.ProjectCommentDTO;
 import com.dream_on.springboot.dto.ProjectDetailDTO;
-import com.dream_on.springboot.dto.ProjectDonorDTO;
 import com.dream_on.springboot.dto.ProjectSummaryDTO;
 import com.dream_on.springboot.dto.RecentProjectDTO;
 
@@ -40,30 +38,15 @@ public interface ProjectMapper {
     // 1) 프로젝트 기본 정보 + sum(donation_amount)로 도달율 계산
     ProjectDetailDTO findProjectDetail(@Param("projectId") Long projectId);
 
-    // 2) 프로젝트 카테고리 목록
-    List<CategoryDTO> findCategorysByProjectId(@Param("projectId") Long projectId);
-    
-    // 3) 기부자 목록(닉네임 등)
-    List<ProjectDonorDTO> findDonorsByProjectId(@Param("projectId") Long projectId);
+    // 2) 기부자 목록(닉네임 등)
+    List<String> findDonorsByProjectId(@Param("projectId") Long projectId);
 
-    // 4) 프로젝트 댓글 목록
-    List<ProjectCommentDTO> findCommentsByProjectId(@Param("projectId") Long projectId);
-    
     // (추가) 기부 INSERT
-    int insertDonation(@Param("userId") int userId,
+    int insertDonation(@Param("userId") Long userId,
                        @Param("projectId") Long projectId,
                        @Param("amount") int amount,
                        @Param("paymentMethod") String paymentMethod);
-    
-    // 프로젝트 좋아요
-    int updateLikeCount(@Param("projectId") Long projectId);
-    
-    // 프로젝트 공유
-    int updateShareCount(@Param("projectId") Long projectId);
 
-    // 프로젝트 댓글 좋아요
-    int updateLikeComment(@Param("commentId") Long commentId);
-    
     // 새로운 프로젝트 레코드를 DB에 추가
     int insertProject(ProjectEntity project);
 
@@ -94,5 +77,16 @@ public interface ProjectMapper {
 	*/
 	List<ProjectSummaryDTO> findTop10ProjectsByDonation();
     
+	 // 전체 프로젝트 조회
+    List<ProjectEntity> findAll();
+
+    // 프로젝트 ID로 단일 프로젝트 조회
+    ProjectEntity findById(int projectId);
+
+    // 프로젝트 업데이트 (승인/거절 등 상태 변경 포함)
+    int update(ProjectEntity project);
+	
+    @Delete("DELETE FROM project WHERE project_id = #{projectId}")
+    int deleteProject(@Param("projectId") int projectId);
     
 }
