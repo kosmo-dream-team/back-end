@@ -110,6 +110,21 @@ public class ProjectService {
         }
     }    
     
+    // 프로젝트 좋아요 카운팅
+    public void like(Long projectId) {
+    	projectMapper.updateLikeCount(projectId);
+    }
+    
+    // 프로젝트 공유 횟수 카운팅
+    public void share(Long projectId) {
+    	projectMapper.updateShareCount(projectId);
+    }
+    
+    // 댓글 좋아요 카운팅
+    public void likeComment(Long commentId) {
+    	projectMapper.updateLikeComment(commentId);
+    }
+    
     /**
      * 새로운 프로젝트 생성
      *

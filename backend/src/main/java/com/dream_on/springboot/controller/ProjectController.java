@@ -111,6 +111,27 @@ public class ProjectController {
         return ResponseEntity.ok("기부 성공!");
     }
 
+    // 좋아요 수 업데이트
+    @GetMapping("/{id}/like")
+    public ResponseEntity<String> like(@PathVariable("id") Long projectId) {
+    	projectService.like(projectId);
+    	return ResponseEntity.ok("좋아요 성공!");
+    }
+    
+    // 공유 횟수 업데이트
+    @GetMapping("/{id}/share")
+    public ResponseEntity<String> share(@PathVariable("id") Long projectId) {
+    	projectService.share(projectId);
+    	return ResponseEntity.ok("공유 성공!");
+    }
+    
+    // 댓글 좋아요 수 업데이트
+    @GetMapping("/likeComment/{commentId}")
+    public ResponseEntity<String> likeComment(@PathVariable("commentId") Long commentId) {
+    	projectService.likeComment(commentId);
+    	return ResponseEntity.ok("댓글 좋아요 성공!");
+    }
+    
     /**
      * 프로젝트 생성
      *
