@@ -1,5 +1,7 @@
 package com.dream_on.springboot.service;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +34,9 @@ public class UserService {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
 
-        
-
-       // 비밀번호 변경 처리
+        // 비밀번호 변경 처리
         if (userDTO.getPassword_hash() != null && !userDTO.getPassword_hash().isEmpty()) {
-           existing.setPasswordHash(passwordEncoder.encode(userDTO.getPassword_hash()));
+            existing.setPasswordHash(passwordEncoder.encode(userDTO.getPassword_hash()));
         }
 
         // 나머지 필드 업데이트
@@ -51,7 +51,6 @@ public class UserService {
 
         // DB에 반영
         int updated = userMapper.updateUser(existing);
-        System.out.println(userDTO.getProfile_image());
         if (updated <= 0) {
             throw new RuntimeException("회원정보 수정 실패: DB update 영향받은 행이 없습니다.");
         }
@@ -272,5 +271,12 @@ public class UserService {
     }
      */
     
+    public List<UserEntity> getAllUsers() {
+        return userMapper.findAll();
+    }
+    
+    public UserEntity getUserById(int userId) {
+        return userMapper.findByUserId(userId);
+    }
   
 }

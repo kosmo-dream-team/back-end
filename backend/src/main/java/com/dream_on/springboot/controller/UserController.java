@@ -45,7 +45,6 @@ public class UserController {
     private final PasswordResetService passwordResetService;
 
 
-
     /**
      * 회원정보 수정 (PUT /api/update/userProfile)
      * 
@@ -101,7 +100,6 @@ public class UserController {
             userService.registerUser(userDTO);
             response.put("success", true);
             response.put("message", "회원가입 성공");
-            System.out.println();
             return response;
         } catch (IllegalArgumentException e) {
             // 이메일 중복 등으로 인한 예외 처리

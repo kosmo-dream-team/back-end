@@ -99,12 +99,11 @@
     </update>
 
     <!-- 회원 탈퇴(혹은 isActive = 'N') -->
-    <update id="deleteUser" parameterType="int">
-        UPDATE user
-           SET is_active = 'N',
-               updated_at = NOW()
-         WHERE user_id = #{userId}
-    </update>
+    <delete id="deleteUser" parameterType="int">
+    DELETE FROM user
+    WHERE user_id = #{userId}
+</delete>
+
 
     <!-- 비밀번호 찾기 관련 -->
     <update id="updateResetToken">

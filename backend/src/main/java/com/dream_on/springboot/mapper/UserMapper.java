@@ -1,7 +1,9 @@
 package com.dream_on.springboot.mapper;
 
 import java.sql.Date;
+import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -47,5 +49,25 @@ public interface UserMapper {
      */
     @Select("SELECT COALESCE(SUM(donation_amount), 0) FROM donation WHERE user_id = #{userId}")
     int sumDonationAmount(@Param("userId") int userId);
-
+    
+ // 전체 회원 조회
+    @Select("SELECT " +
+            "user_id AS userId, " +
+            "email, " +
+            "password_hash AS passwordHash, " +
+            "user_name AS userName, " +
+            "gender, " +
+            "phone, " +
+            "user_type AS userType, " +
+            "balance, " +
+            "created_at AS createdAt, " +
+            "updated_at AS updatedAt, " +
+            "is_active AS isActive, " +
+            "profile_image AS profileImage, " +
+            "reset_token AS resetToken, " +
+            "reset_token_expires_at AS resetTokenExpiresAt " +
+            "FROM user")
+    List<UserEntity> findAll();
+    
+  
 }
