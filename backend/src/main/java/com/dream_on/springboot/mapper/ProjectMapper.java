@@ -7,7 +7,10 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.dream_on.springboot.domain.ProjectEntity;
+import com.dream_on.springboot.dto.CategoryDTO;
+import com.dream_on.springboot.dto.ProjectCommentDTO;
 import com.dream_on.springboot.dto.ProjectDetailDTO;
+import com.dream_on.springboot.dto.ProjectDonorDTO;
 import com.dream_on.springboot.dto.ProjectSummaryDTO;
 import com.dream_on.springboot.dto.RecentProjectDTO;
 
@@ -17,45 +20,60 @@ public interface ProjectMapper {
 
 
     /**
-     * 특정 카테고리에 대한 기부액 상위 10위 프로젝트
-     * @param categoryId 조회할 카테고리 ID
+     * �듅�젙 移댄뀒怨좊━�뿉 ���븳 湲곕��븸 �긽�쐞 10�쐞 �봽濡쒖젥�듃
+     * @param categoryId 議고쉶�븷 移댄뀒怨좊━ ID
      */
 	List<ProjectSummaryDTO> findTop10ProjectsByDonationInCategory(@Param("categoryId") int categoryId);
         
     
-    // 최근 신설된 프로젝트 3개 정보 조회
+    // 理쒓렐 �떊�꽕�맂 �봽濡쒖젥�듃 3媛� �젙蹂� 議고쉶
 	List<RecentProjectDTO> findLatest3Projects();
     
     
     /*
-	캠페인(기부-상세보기)
-	해당 프로젝트 값 전달 :
-	프로젝트 명칭, 카데고리, 시작일, 마감일, 설명,
-	마감일까지 남은 일수(예: D-16), 목표금액, 도달율(예: 33%)
-	해당 프로젝트의 기부자    
+	罹좏럹�씤(湲곕�-�긽�꽭蹂닿린)
+	�빐�떦 �봽濡쒖젥�듃 媛� �쟾�떖 :
+	�봽濡쒖젥�듃 紐낆묶, 移대뜲怨좊━, �떆�옉�씪, 留덇컧�씪, �꽕紐�,
+	留덇컧�씪源뚯� �궓�� �씪�닔(�삁: D-16), 紐⑺몴湲덉븸, �룄�떖�쑉(�삁: 33%)
+	�빐�떦 �봽濡쒖젥�듃�쓽 湲곕��옄    
 	*/
 
-    // 1) 프로젝트 기본 정보 + sum(donation_amount)로 도달율 계산
+    // 1) �봽濡쒖젥�듃 湲곕낯 �젙蹂� + sum(donation_amount)濡� �룄�떖�쑉 怨꾩궛
     ProjectDetailDTO findProjectDetail(@Param("projectId") Long projectId);
 
-    // 2) 기부자 목록(닉네임 등)
-    List<String> findDonorsByProjectId(@Param("projectId") Long projectId);
+    // 2) �봽濡쒖젥�듃 移댄뀒怨좊━ 紐⑸줉
+    List<CategoryDTO> findCategorysByProjectId(@Param("projectId") Long projectId);
+    
+    // 3) 湲곕��옄 紐⑸줉(�땳�꽕�엫 �벑)
+    List<ProjectDonorDTO> findDonorsByProjectId(@Param("projectId") Long projectId);
 
-    // (추가) 기부 INSERT
-    int insertDonation(@Param("userId") Long userId,
+    // 4) �봽濡쒖젥�듃 �뙎湲� 紐⑸줉
+    List<ProjectCommentDTO> findCommentsByProjectId(@Param("projectId") Long projectId);
+    
+    // (異붽�) 湲곕� INSERT
+    int insertDonation(@Param("userId") int userId,
                        @Param("projectId") Long projectId,
                        @Param("amount") int amount,
                        @Param("paymentMethod") String paymentMethod);
+    
+    // �봽濡쒖젥�듃 醫뗭븘�슂
+    int updateLikeCount(@Param("projectId") Long projectId);
+    
+    // �봽濡쒖젥�듃 怨듭쑀
+    int updateShareCount(@Param("projectId") Long projectId);
 
-    // 새로운 프로젝트 레코드를 DB에 추가
+    // �봽濡쒖젥�듃 �뙎湲� 醫뗭븘�슂
+    int updateLikeComment(@Param("commentId") Long commentId);
+    
+    // �깉濡쒖슫 �봽濡쒖젥�듃 �젅肄붾뱶瑜� DB�뿉 異붽�
     int insertProject(ProjectEntity project);
 
-    // 기존의 프로젝트 정보를 수정
+    // 湲곗〈�쓽 �봽濡쒖젥�듃 �젙蹂대�� �닔�젙
     int updateProject(ProjectEntity project);
 
     /*
-	* 전체 카테고리에 대한 기부액 상위 10위 프로젝트
-	프로젝트명, 카테고리, 목표일, 마감일까지 남은 일수, 목표금액, 도달율
+	* �쟾泥� 移댄뀒怨좊━�뿉 ���븳 湲곕��븸 �긽�쐞 10�쐞 �봽濡쒖젥�듃
+	�봽濡쒖젥�듃紐�, 移댄뀒怨좊━, 紐⑺몴�씪, 留덇컧�씪源뚯� �궓�� �씪�닔, 紐⑺몴湲덉븸, �룄�떖�쑉
 
     @Select("""
         SELECT 
@@ -64,7 +82,7 @@ public interface ProjectMapper {
             DATE_FORMAT(p.end_date, '%Y-%m-%d') AS goalDate,
             DATEDIFF(p.end_date, NOW()) AS daysLeft,
             p.target_amount       AS goalAmount,
-            -- NULL 방지로 SUM(d.donation_amount)와 p.target_amount를 0 처리
+            -- NULL 諛⑹�濡� SUM(d.donation_amount)�� p.target_amount瑜� 0 泥섎━
             CAST( ( COALESCE(SUM(d.donation_amount), 0) / p.target_amount ) * 100 AS UNSIGNED ) AS donationRate
             p.project_image                        AS projectImage
         FROM project p
@@ -77,16 +95,15 @@ public interface ProjectMapper {
 	*/
 	List<ProjectSummaryDTO> findTop10ProjectsByDonation();
     
-	 // 전체 프로젝트 조회
+	// 전체 프로젝트 조회
     List<ProjectEntity> findAll();
-
+	
     // 프로젝트 ID로 단일 프로젝트 조회
     ProjectEntity findById(int projectId);
-
+	
     // 프로젝트 업데이트 (승인/거절 등 상태 변경 포함)
     int update(ProjectEntity project);
 	
     @Delete("DELETE FROM project WHERE project_id = #{projectId}")
     int deleteProject(@Param("projectId") int projectId);
-    
 }
