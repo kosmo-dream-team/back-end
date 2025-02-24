@@ -54,7 +54,16 @@ public interface ProjectMapper {
                        @Param("projectId") Long projectId,
                        @Param("amount") int amount,
                        @Param("paymentMethod") String paymentMethod);
+    
+    // 프로젝트 좋아요
+    int updateLikeCount(@Param("projectId") Long projectId);
+    
+    // 프로젝트 공유
+    int updateShareCount(@Param("projectId") Long projectId);
 
+    // 프로젝트 댓글 좋아요
+    int updateLikeComment(@Param("commentId") Long commentId);
+    
     // 새로운 프로젝트 레코드를 DB에 추가
     int insertProject(ProjectEntity project);
 

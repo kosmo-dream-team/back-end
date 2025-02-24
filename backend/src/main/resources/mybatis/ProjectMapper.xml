@@ -94,8 +94,8 @@
 
 	<!-- 해당 프로젝트 댓글 목록 -->
 	<select id = "findCommentsByProjectId" resultType="com.dream_on.springboot.dto.ProjectCommentDTO">
-		select u.profile_image as profileImage, u.user_name as userName, 
-		c.comment, c.like as likeCount, c.post_date as postDate 
+		select c.comment_id as commentId, u.profile_image as profileImage, u.user_name as userName, 
+		c.comment, c.like_count as likeCount, c.post_date as postDate 
 		from comment c
 		left join user u on c.user_id = u.user_id
 		where c.project_id = #{projectId}
@@ -111,6 +111,26 @@
         )
     </insert>
 	
+	<!-- 프로젝트 좋아요 -->
+	<update id = "updateLikeCount">
+		update project
+		set like_count = like_count + 1
+		where project_id = #{projectId}
+	</update>
+	
+	<!-- 프로젝트 공유 -->
+	<update id = "updateShareCount">
+		update project
+		set share_count = share_count + 1
+		where project_id = #{projectId}
+	</update>
+	
+	<!-- 프로젝트 댓글 좋아요 -->
+	<update id = "updateLikeComment">
+		update comment
+		set like_count = like_count + 1
+		where comment_id = #{commentId}
+	</update>
 	
 	<!-- 
 	  [목적]
