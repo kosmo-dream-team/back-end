@@ -49,6 +49,8 @@ public class SecurityConfig {
                     "/api/signup",
                     "/api/update/userProfile",
                     "/api/topproject",
+                    "/api/search",                    
+                    "/images/**",                    
                     "/project/**", 
                     "/comment/**",
                     "/css/**",
