@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.dream_on.springboot.domain.ProjectEntity;
+import com.dream_on.springboot.dto.AllProjectDTO;
 import com.dream_on.springboot.dto.CategoryDTO;
 import com.dream_on.springboot.dto.ProjectCommentDTO;
 import com.dream_on.springboot.dto.ProjectDetailDTO;
@@ -17,6 +18,9 @@ import com.dream_on.springboot.dto.RecentProjectDTO;
 @Mapper
 public interface ProjectMapper {
 
+
+    // 모든 프로젝트 정보 조회
+    List<AllProjectDTO> findAllProjects();	
 
 
     /**

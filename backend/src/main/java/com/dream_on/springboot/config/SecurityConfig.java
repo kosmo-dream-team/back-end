@@ -53,6 +53,8 @@ public class SecurityConfig {
                     "/api/topproject",                    
                     "/api/state",
                     "/api/search",
+                    "/project/allprojectlist",                    
+                    
                     "/css/**", 
                     "/js/**",
                    

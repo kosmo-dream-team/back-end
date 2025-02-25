@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dream_on.springboot.domain.ProjectEntity;
+import com.dream_on.springboot.dto.AllProjectDTO;
 import com.dream_on.springboot.dto.CategoryDTO;
 import com.dream_on.springboot.dto.ProjectCommentDTO;
 import com.dream_on.springboot.dto.ProjectDetailDTO;
@@ -37,6 +38,11 @@ public class ProjectService {
 
     private final ProjectMapper projectMapper;
 
+    // 모든 프로젝트 리스트 가져오기
+    public List<AllProjectDTO> getAllProjectList() {
+        return projectMapper.findAllProjects();
+    }    
+    
     // 파일 업로드 디렉토리 (application.properties 파일에 file.upload-dir 속성으로 지정)
     @Value("${file.upload-dir}")
     private String uploadDir;

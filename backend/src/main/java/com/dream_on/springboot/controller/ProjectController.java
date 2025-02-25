@@ -1,16 +1,22 @@
 package com.dream_on.springboot.controller;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dream_on.springboot.domain.ProjectEntity;
+import com.dream_on.springboot.dto.AllProjectDTO;
 import com.dream_on.springboot.dto.ProjectDetailDTO;
 import com.dream_on.springboot.dto.ProjectDonationDTO;
 import com.dream_on.springboot.dto.ProjectSummaryDTO;
@@ -39,6 +45,22 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+    // [GET] /project/allprojectlist
+    @GetMapping("/allprojectlist")
+    public ResponseEntity<List<AllProjectDTO>> getAllProjects() {
+
+    	// 컨트롤러가 정상적으로 도달했는지 확인
+        System.out.println("===== [DEBUG] /project/allprojectlist 컨트롤러 진입 =====");    	
+    	
+    	List<AllProjectDTO> projectList = projectService.getAllProjectList();
+
+        // projectList 값 확인
+        System.out.println("===== [DEBUG] /project/allprojectlist result: " + projectList);    	
+    	
+    	return ResponseEntity.ok(projectList);
+    }
+    
+    
     /**
      * (�쟾泥� 移댄뀒怨좊━) 湲곕��븸 �긽�쐞 10媛� �봽濡쒖젥�듃 議고쉶
      *
