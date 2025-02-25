@@ -9,6 +9,39 @@
 -->
  
 <mapper namespace="com.dream_on.springboot.mapper.ProjectMapper">
+
+    <!-- 모든 프로젝트 리스트 조회 -->
+    <select id="findAllProjects" resultType="com.dream_on.springboot.dto.AllProjectDTO">
+        SELECT 
+            p.project_id AS project_id,
+            u.user_name AS user_name,
+            -- 남은 일수: DATEDIFF(종료일, 현재날짜)
+            DATEDIFF(p.end_date, NOW()) AS d_day,
+            c.category AS category,
+            p.title AS title,
+            p.project_image AS project_image,
+            -- 진행도: (총 기부액 / 목표금액) * 100
+            CAST(
+                (COALESCE(SUM(d.donation_amount), 0) / p.target_amount) * 100 
+                AS UNSIGNED
+            ) AS progress,
+            p.target_amount AS target_amount,
+            p.like_count AS like_count,
+            -- 시작일은 YYYY-MM-DD 형식으로 변환 (필요시 end_date도 추가)
+            DATE_FORMAT(p.start_date, '%Y-%m-%d') AS start_date,
+            p.status AS status
+        FROM project p
+            LEFT JOIN user u ON p.user_id = u.user_id
+            LEFT JOIN donation d ON p.project_id = d.project_id
+            LEFT JOIN category c ON p.category_id = c.category_id
+        GROUP BY p.project_id
+        ORDER BY p.project_id DESC
+    </select>
+
+
+
+
+
 	<!-- 명시적 매핑: resultMap을 사용 -->
  	<resultMap id="projectMap" type="com.dream_on.springboot.domain.ProjectEntity">
     	<id property="projectId" column="project_id" />
