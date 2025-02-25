@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dream_on.springboot.mapper.SearchMapper">
+
+  <!-- 
+      검색어가 제목(title) 또는 설명(description)에 포함된 프로젝트의 ID를 검색합니다.
+  -->
+  <select id="findProjectsByKeyword" parameterType="String" resultType="com.dream_on.springboot.dto.ProjectIdDTO">
+    SELECT 
+      p.project_id AS projectId
+    FROM project p
+    WHERE p.title LIKE #{keyword}
+       OR p.description LIKE #{keyword}
+    ORDER BY p.created_at DESC
+  </select>
+
+</mapper>

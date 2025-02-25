@@ -1,7 +1,9 @@
 package com.dream_on.springboot.controller;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.dream_on.springboot.domain.UserEntity;
 import com.dream_on.springboot.dto.LoginRequestDTO;
@@ -52,31 +55,55 @@ public class UserController {
      * - @RequestBody로 DTO를 받음
      * - 세션 대신 단순히 user_id를 DTO로 받는다고 가정
      */
-    @PutMapping("/update/userProfile")
-    public ResponseEntity<?> updateUserProfile(@RequestBody UserDTO userDTO) {
+    @PutMapping({"/update/userProfile"})
+    public ResponseEntity<?> updateUserProfile(@RequestParam("user_id") int userId, @RequestParam("password_hash") String passwordHash, @RequestParam("email") String email, @RequestParam("user_name") String userName, @RequestParam("phone") String phone, @RequestParam("gender") String gender, @RequestParam("user_type") String userType, @RequestParam(value = "profile_image",required = false) MultipartFile profileImage) {
+        HashMap response;
         try {
-            // user_id가 0 이거나 없는 경우 예외
-            if (userDTO.getUser_id() == 0) {
-                throw new IllegalArgumentException("수정할 사용자의 user_id가 없습니다.");
+            System.out.println("===== [DEBUG] /api/update/userProfile 컨트롤러 진입 =====");
+            UserDTO userDTO = new UserDTO();
+            userDTO.setUser_id(userId);
+            userDTO.setPassword_hash(passwordHash);
+            userDTO.setEmail(email);
+            userDTO.setUser_name(userName);
+            userDTO.setPhone(phone);
+            userDTO.setGender(gender);
+            userDTO.setUser_type(userType);
+            if (profileImage != null && !profileImage.isEmpty()) {
+                System.out.println("===== [DEBUG] /api/update/userProfile 이미지 수정 전 =====");
+                String originalFilename = profileImage.getOriginalFilename();
+                String var10000 = UUID.randomUUID().toString();
+                String uniqueFilename = var10000 + "_" + originalFilename;
+                String projectPath = System.getProperty("user.dir");
+                String uploadDirPath = projectPath + "/src/main/resources/static/images";
+                File saveDir = new File(uploadDirPath);
+                if (!saveDir.exists()) {
+                    saveDir.mkdirs();
+                }
+
+                File destFile = new File(saveDir, uniqueFilename);
+                System.out.println("===== [DEBUG] saveDir =====" + String.valueOf(saveDir));
+                System.out.println("===== [DEBUG] destFile =====" + String.valueOf(destFile));
+                profileImage.transferTo(destFile);
+                System.out.println("===== [DEBUG] /api/update/userProfile 이미지 전송 후 =====");
+                userDTO.setProfile_image(uniqueFilename);
             }
 
-            // 실제 서비스 로직 호출
-            userService.updateUser(userDTO);
-
-            // 성공 시
-            Map<String, Object> response = new HashMap<>();
+            this.userService.updateUser(userDTO);
+            response = new HashMap();
             response.put("success", true);
             response.put("message", "회원정보가 성공적으로 수정되었습니다.");
             return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            // 실패 시
-            Map<String, Object> response = new HashMap<>();
+        } catch (Exception var16) {
+            Exception e = var16;
+            e.printStackTrace();
+            response = new HashMap();
             response.put("success", false);
             response.put("errorMsg", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+
+    
     
     
     /**

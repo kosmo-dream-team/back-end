@@ -27,34 +27,33 @@ public class UserService {
     public void updateUser(UserDTO userDTO) {
         if (userDTO.getUser_id() == 0) {
             throw new IllegalArgumentException("수정할 사용자의 userId가 없습니다.");
-        }
-        // DB에서 기존 데이터 로드
-        UserEntity existing = userMapper.findByUserId(userDTO.getUser_id());
-        if (existing == null) {
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
-        }
+        } else {
+            UserEntity existing = this.userMapper.findByUserId(userDTO.getUser_id());
+            if (existing == null) {
+                throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+            } else {
+                if (userDTO.getPassword_hash() != null && !userDTO.getPassword_hash().isEmpty()) {
+                    existing.setPasswordHash(this.passwordEncoder.encode(userDTO.getPassword_hash()));
+                }
 
-        // 비밀번호 변경 처리
-        if (userDTO.getPassword_hash() != null && !userDTO.getPassword_hash().isEmpty()) {
-            existing.setPasswordHash(passwordEncoder.encode(userDTO.getPassword_hash()));
-        }
+                existing.setEmail(userDTO.getEmail());
+                existing.setUserName(userDTO.getUser_name());
+                existing.setGender(userDTO.getGender());
+                existing.setPhone(userDTO.getPhone());
+                existing.setUserType(userDTO.getUser_type());
+                existing.setBalance(userDTO.getBalance());
+                if (userDTO.getProfile_image() != null && !userDTO.getProfile_image().isEmpty()) {
+                    existing.setProfileImage(userDTO.getProfile_image());
+                }
 
-        // 나머지 필드 업데이트
-        existing.setEmail(userDTO.getEmail());
-        existing.setUserName(userDTO.getUser_name());
-        existing.setGender(userDTO.getGender());
-        existing.setPhone(userDTO.getPhone());
-        existing.setUserType(userDTO.getUser_type());
-        existing.setBalance(userDTO.getBalance());
-        existing.setProfileImage(userDTO.getProfile_image());
-        // 필요 시 resetToken 등도 업데이트 가능
-
-        // DB에 반영
-        int updated = userMapper.updateUser(existing);
-        if (updated <= 0) {
-            throw new RuntimeException("회원정보 수정 실패: DB update 영향받은 행이 없습니다.");
+                int updated = this.userMapper.updateUser(existing);
+                if (updated <= 0) {
+                    throw new RuntimeException("회원정보 수정 실패: DB update 영향받은 행이 없습니다.");
+                }
+            }
         }
-    }    
+    }
+    
     
     /**
      * 회원가입 로직:
