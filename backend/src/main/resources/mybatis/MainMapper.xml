@@ -8,18 +8,14 @@
   <select id="findTop15ProjectsByDonation" 
           resultType="com.dream_on.springboot.dto.ProjectSummaryDTO">
 
-    SELECT
+SELECT
       p.project_id AS project_id,
-      p.user_id AS user_id,
-      p.category_id AS category_id,
+      u.user_name AS user_name,
+      c.category AS category,
       p.title AS title,
       p.project_image AS project_image,
       p.target_amount AS target_amount,
-
-      -- 남은 일수 => d_daY
       DATEDIFF(p.end_date, NOW()) AS d_daY,
-
-      -- 진행도(%) => progresS
       CAST(
         (
           COALESCE(SUM(d.donation_amount), 0) 
@@ -27,13 +23,14 @@
         ) * 100 
         AS UNSIGNED
       ) AS progresS
-
     FROM project p
     LEFT JOIN donation d ON p.project_id = d.project_id
-
+   LEFT JOIN category c ON p.category_id = c.category_id 
+   LEFT JOIN user u ON p.user_id = u.user_id 
     GROUP BY p.project_id
     ORDER BY SUM(d.donation_amount) DESC
     LIMIT 15
+
 
   </select>
 
