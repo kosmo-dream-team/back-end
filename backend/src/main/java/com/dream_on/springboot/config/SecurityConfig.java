@@ -48,6 +48,9 @@ public class SecurityConfig {
                 // 로그인, 회원가입 등은 인증 없이 허용
                 .requestMatchers(
                       "/api/update/userProfile",
+                      "/project/**",
+                      "/campaign/**",
+                      "/comment/**",
                    "/api/login",
                     "/api/signup",
                     "/api/topproject",                    
@@ -55,13 +58,20 @@ public class SecurityConfig {
                     "/api/search",
                     "/project/allprojectlist",  
                     "/project/**",
-                    "/css/**", 
-                    "/js/**",
                     "/comment/**",
                     
+                   
+                    "/css/**", 
+                    "/js/**",
+                   "/api/**",
+                   "/admin/**",
+                   
                     "/oauth2/**",           // OAuth2 시작 엔드포인트 허용
                     "/login/oauth2/**" ,     // OAuth2 리디렉션(콜백) URI 허용
-                    "/images/**"
+                    "/images/**",
+                    "/images/*",
+                    "/api/category",
+                    "/project/create"
                     
                 ).permitAll()
                 // 나머지 요청은 인증 필요
@@ -70,11 +80,11 @@ public class SecurityConfig {
 
             // (3) OAuth2 로그인 설정
             .oauth2Login(oauth -> oauth
-                // authorizationEndpoint: OAuth2 인증을 시작하는 엔드포인트의 기본 URI 설정
+                // OAuth2 인증을 시작하는 엔드포인트의 기본 URI 설정
                 .authorizationEndpoint(authorization -> authorization
                     .baseUri("/oauth2/authorization")
                 )
-                // redirectionEndpoint: OAuth2 인증 후 콜백 요청을 받는 URI 설정
+                //  OAuth2 인증 후 콜백 요청을 받는 URI 설정
                 .redirectionEndpoint(redirection -> redirection
                     .baseUri("/login/oauth2/code/*")
                 )

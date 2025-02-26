@@ -321,7 +321,7 @@
         	p.project_image,
         	p.share_count,
         	p.like_count,
-        	c.category_name AS categoryName
+        	c.category AS categoryName
     	FROM project p
     	LEFT JOIN category c ON p.category_id = c.category_id
     	LEFT JOIN user u ON p.user_id = u.user_id
@@ -344,7 +344,7 @@
         	p.project_image,
         	p.share_count,
         	p.like_count,
-        	c.category_name AS categoryName   <!-- category 테이블의 category_name을 categoryName으로 -->
+        	c.category AS categoryName   <!-- category 테이블의 category_name을 categoryName으로 -->
     	FROM project p
     	LEFT JOIN user u ON p.user_id = u.user_id
     	LEFT JOIN category c ON p.category_id = c.category_id

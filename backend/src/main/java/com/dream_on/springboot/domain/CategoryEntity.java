@@ -11,5 +11,5 @@ import lombok.Data;
 @Data
 public class CategoryEntity {
     private int categoryId;    // category_id
-    private String category;   // 카테고리명 (ex: "교육", "의료", "환경" 등)
+    private String categoryName;   // 카테고리명 (ex: "교육", "의료", "환경" 등)
 }

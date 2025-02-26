@@ -135,6 +135,7 @@ public class UserService {
     }    
     
 
+    
     // 예시: 기부액에 따른 등급 계산
     private String computeRank(int totalDonation) {
         if (totalDonation < 100000) {

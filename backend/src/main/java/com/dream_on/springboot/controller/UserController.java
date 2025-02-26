@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -46,6 +47,9 @@ public class UserController {
 
     private final UserService userService;
     private final PasswordResetService passwordResetService;
+    
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
 
     /**
@@ -56,8 +60,17 @@ public class UserController {
      * - 세션 대신 단순히 user_id를 DTO로 받는다고 가정
      */
     @PutMapping({"/update/userProfile"})
-    public ResponseEntity<?> updateUserProfile(@RequestParam("user_id") int userId, @RequestParam("password_hash") String passwordHash, @RequestParam("email") String email, @RequestParam("user_name") String userName, @RequestParam("phone") String phone, @RequestParam("gender") String gender, @RequestParam("user_type") String userType, @RequestParam(value = "profile_image",required = false) MultipartFile profileImage) {
-        HashMap response;
+    public ResponseEntity<?> updateUserProfile(
+            @RequestParam("user_id") int userId, 
+            @RequestParam("password_hash") String passwordHash, 
+            @RequestParam("email") String email, 
+            @RequestParam("user_name") String userName, 
+            @RequestParam("phone") String phone, 
+            @RequestParam("gender") String gender, 
+            @RequestParam("user_type") String userType, 
+            @RequestParam(value = "profile_image", required = false) MultipartFile profileImage) {
+        
+        HashMap<String, Object> response;
         try {
             System.out.println("===== [DEBUG] /api/update/userProfile 컨트롤러 진입 =====");
             UserDTO userDTO = new UserDTO();
@@ -68,40 +81,40 @@ public class UserController {
             userDTO.setPhone(phone);
             userDTO.setGender(gender);
             userDTO.setUser_type(userType);
+
             if (profileImage != null && !profileImage.isEmpty()) {
                 System.out.println("===== [DEBUG] /api/update/userProfile 이미지 수정 전 =====");
                 String originalFilename = profileImage.getOriginalFilename();
-                String var10000 = UUID.randomUUID().toString();
-                String uniqueFilename = var10000 + "_" + originalFilename;
-                String projectPath = System.getProperty("user.dir");
-                String uploadDirPath = projectPath + "/src/main/resources/static/images";
-                File saveDir = new File(uploadDirPath);
+                String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+                
+                // 공통 uploadDir 사용
+                File saveDir = new File(uploadDir);
                 if (!saveDir.exists()) {
                     saveDir.mkdirs();
                 }
 
                 File destFile = new File(saveDir, uniqueFilename);
-                System.out.println("===== [DEBUG] saveDir =====" + String.valueOf(saveDir));
-                System.out.println("===== [DEBUG] destFile =====" + String.valueOf(destFile));
+                System.out.println("===== [DEBUG] saveDir: " + saveDir);
+                System.out.println("===== [DEBUG] destFile: " + destFile);
                 profileImage.transferTo(destFile);
                 System.out.println("===== [DEBUG] /api/update/userProfile 이미지 전송 후 =====");
                 userDTO.setProfile_image(uniqueFilename);
             }
 
-            this.userService.updateUser(userDTO);
-            response = new HashMap();
+            userService.updateUser(userDTO);
+            response = new HashMap<>();
             response.put("success", true);
             response.put("message", "회원정보가 성공적으로 수정되었습니다.");
             return ResponseEntity.ok(response);
-        } catch (Exception var16) {
-            Exception e = var16;
+        } catch (Exception e) {
             e.printStackTrace();
-            response = new HashMap();
+            response = new HashMap<>();
             response.put("success", false);
             response.put("errorMsg", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+
 
     
     

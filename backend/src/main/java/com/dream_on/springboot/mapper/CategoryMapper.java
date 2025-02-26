@@ -7,7 +7,7 @@ import java.util.List;
 
 @Mapper
 public interface CategoryMapper {
-	@Select("SELECT category_id AS categoryId, category_name AS categoryName FROM category ORDER BY category_id ASC")
+	@Select("SELECT category_id AS categoryId, category AS categoryName FROM category ORDER BY category_id ASC")
 	List<CategoryEntity> findAllCategories();
 
 }
