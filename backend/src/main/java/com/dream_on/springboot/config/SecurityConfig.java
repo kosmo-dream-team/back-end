@@ -53,11 +53,12 @@ public class SecurityConfig {
                     "/api/topproject",                    
                     "/api/state",
                     "/api/search",
-                    "/project/allprojectlist",                    
-                    
+                    "/project/allprojectlist",  
+                    "/project/**",
                     "/css/**", 
                     "/js/**",
-                   
+                    "/comment/**",
+                    
                     "/oauth2/**",           // OAuth2 시작 엔드포인트 허용
                     "/login/oauth2/**" ,     // OAuth2 리디렉션(콜백) URI 허용
                     "/images/**"
