@@ -32,9 +32,9 @@ public class UserService {
             if (existing == null) {
                 throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
             } else {
-                if (userDTO.getPassword_hash() != null && !userDTO.getPassword_hash().isEmpty()) {
-                    existing.setPasswordHash(this.passwordEncoder.encode(userDTO.getPassword_hash()));
-                }
+//                if (userDTO.getPassword_hash() != null && !userDTO.getPassword_hash().isEmpty()) {
+//                    existing.setPasswordHash(this.passwordEncoder.encode(userDTO.getPassword_hash()));
+//                }
 
                 existing.setEmail(userDTO.getEmail());
                 existing.setUserName(userDTO.getUser_name());
